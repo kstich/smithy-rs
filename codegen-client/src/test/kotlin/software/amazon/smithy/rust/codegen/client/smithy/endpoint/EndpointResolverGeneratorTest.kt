@@ -13,10 +13,10 @@ import software.amazon.smithy.codegen.core.CodegenException
 import software.amazon.smithy.model.Model
 import software.amazon.smithy.model.node.Node
 import software.amazon.smithy.rulesengine.language.Endpoint
-import software.amazon.smithy.rulesengine.language.eval.Scope
-import software.amazon.smithy.rulesengine.language.eval.Type
-import software.amazon.smithy.rulesengine.language.syntax.expr.Expression
-import software.amazon.smithy.rulesengine.language.syntax.expr.Literal
+import software.amazon.smithy.rulesengine.language.evaluation.Scope
+import software.amazon.smithy.rulesengine.language.evaluation.type.Type
+import software.amazon.smithy.rulesengine.language.syntax.expressions.Expression
+import software.amazon.smithy.rulesengine.language.syntax.expressions.literal.Literal
 import software.amazon.smithy.rulesengine.testutil.TestDiscovery
 import software.amazon.smithy.rust.codegen.client.smithy.endpoint.generators.EndpointParamsGenerator
 import software.amazon.smithy.rust.codegen.client.smithy.endpoint.generators.EndpointResolverGenerator
@@ -108,14 +108,14 @@ class EndpointResolverGeneratorTest {
     @Test
     fun generateEndpoints() {
         val endpoint = Endpoint.builder().url(Expression.of("https://{Region}.amazonaws.com"))
-            .addHeader("x-amz-test", listOf(Literal.of("header-value")))
+            .putHeader("x-amz-test", listOf(Literal.of("header-value")))
             .addAuthScheme(
                 "sigv4",
                 hashMapOf("signingName" to Literal.of("service"), "signingScope" to Literal.of("{Region}")),
             )
             .build()
         val scope = Scope<Type>()
-        scope.insert("Region", Type.string())
+        scope.insert("Region", Type.stringType())
         endpoint.typeCheck(scope)
         val context = testClientCodegenContext()
         val generator = EndpointResolverGenerator(context, listOf())
